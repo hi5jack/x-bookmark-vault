@@ -6,9 +6,12 @@
 // Each row gives `handle` and `id` rather than a URL, because the extension
 // redacts long link paths in results. Build the post URL as
 // https://x.com/<handle>/status/<id> and use the handle as the author.
-// Change LIMIT for a smaller selection.
+// Change LIMIT for a smaller selection. For a continuation, set AFTER_ID
+// to the string returned by vault cursor.
 await (async () => {
   const LIMIT = 20;
+  const AFTER_ID = null;
+  const FROM_CURRENT_POSITION = false;
   const STEP_WAIT_MS = 1200;
   const MAX_IDLE_STEPS = 4;
   const MAX_STEPS = 60;
@@ -34,7 +37,10 @@ await (async () => {
     return out.replace(/ /g, " ").trim();
   };
 
-  const rows = new Map();
+  const rows = [];
+  const seen = new Set();
+  let foundAnchor = AFTER_ID === null;
+  const target = LIMIT + (AFTER_ID === null ? 0 : 1);
   const collect = () => {
     for (const article of document.querySelectorAll('main article[data-testid="tweet"]')) {
       // A quoted post is a nested card with its own avatar; X Article cards have none.
@@ -45,7 +51,14 @@ await (async () => {
         .find((a) => a.querySelector("time") && own(a));
       if (!permalink) continue;
       const [, handle, kind, id] = new URL(permalink.href).pathname.split("/");
-      if (kind !== "status" || !/^\d{1,19}$/.test(id) || rows.has(id)) continue;
+      if (kind !== "status" || !/^\d{1,19}$/.test(id) || seen.has(id)) continue;
+      seen.add(id);
+      if (id === AFTER_ID) {
+        foundAnchor = true;
+        rows.push({handle, id});
+        continue;
+      }
+      if (!foundAnchor) continue;
 
       const textNode = [...article.querySelectorAll('[data-testid="tweetText"]')].find(own);
       const cover = article.querySelector('[data-testid="article-cover-image"]');
@@ -66,7 +79,7 @@ await (async () => {
       }
 
       const name = article.querySelector('[data-testid="User-Name"]');
-      rows.set(id, {
+      rows.push({
         handle, id,
         created_at: permalink.querySelector("time").getAttribute("datetime"),
         text,
@@ -77,24 +90,32 @@ await (async () => {
     }
   };
 
-  window.scrollTo(0, 0);
-  await new Promise((r) => setTimeout(r, STEP_WAIT_MS));
-  let idle = 0;
-  for (let step = 0; step < MAX_STEPS && rows.size < LIMIT && idle < MAX_IDLE_STEPS; step++) {
-    const before = rows.size;
-    collect();
-    if (rows.size >= LIMIT) break;
-    idle = rows.size === before ? idle + 1 : 0;
-    window.scrollBy(0, Math.round(window.innerHeight * 0.8));
+  if (!FROM_CURRENT_POSITION) {
+    window.scrollTo(0, 0);
     await new Promise((r) => setTimeout(r, STEP_WAIT_MS));
   }
+  let idle = 0;
+  for (let step = 0; step < MAX_STEPS && rows.length < target && idle < MAX_IDLE_STEPS; step++) {
+    const before = seen.size;
+    const offset = window.scrollY;
+    collect();
+    if (rows.length >= target) break;
+    window.scrollBy(0, Math.round(window.innerHeight * 0.8));
+    await new Promise((r) => setTimeout(r, STEP_WAIT_MS));
+    idle = seen.size === before && window.scrollY === offset ? idle + 1 : 0;
+  }
   collect();
+  if (!foundAnchor) {
+    if (idle < MAX_IDLE_STEPS) {
+      return {continue_scan: true};
+    }
+    return {error: "The previous bookmark could not be found on this timeline. Restart from recent bookmarks or try again after opening the same account."};
+  }
   window.scrollTo(0, 0);
-  const selected = [...rows.values()].slice(0, LIMIT);
+  const selected = rows.slice(0, target);
   return {
     read_at: new Date().toISOString(),
-    count: selected.length,
-    reached_end: selected.length < LIMIT,
+    count: selected.length - (AFTER_ID === null ? 0 : 1),
     rows: selected,
   };
 })()

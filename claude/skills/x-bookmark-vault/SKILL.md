@@ -1,6 +1,6 @@
 ---
 name: x-bookmark-vault
-description: Sync up to 20 recent X (Twitter) bookmarks from the user's signed-in Chrome, or archive specific X posts, quoted posts, images, video transcripts, and linked sources in a local vault on the Mac. Suggest and save practical outputs (briefs, storyboards, reading plans) from recent bookmarks with original-source and timestamp citations. Use when the user mentions X or Twitter bookmarks, their bookmark vault, or asks what they can make from saved posts.
+description: Sync recent or older X (Twitter) bookmarks in batches of up to 20 from the user's signed-in Chrome, or archive specific X posts, quoted posts, images, video transcripts, and linked sources in a local vault on the Mac. Suggest and save practical outputs (briefs, storyboards, reading plans) from recent bookmarks with original-source and timestamp citations. Use when the user mentions X or Twitter bookmarks, their bookmark vault, or asks what they can make from saved posts.
 allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/vault *) Read(~/.local/share/x-bookmark-vault/**) Edit(~/.local/share/x-bookmark-vault/tmp/**)
 ---
 
@@ -124,6 +124,30 @@ status, speaker mapping, known-speaker references, and fallback on audio runs.
 Schedule only when the user asks to configure recurring sync.
 After syncing, describe newly archived images using the steps below. Reuse
 descriptions that are already saved.
+
+## Continue with older bookmarks
+
+When asked to sync older bookmarks, run `vault cursor` to get the ID of
+the last bookmark from the most recent batch. Open the signed-in Bookmarks
+timeline and scroll until you see that exact post. Use bookmark order, even
+when the post dates appear out of order. Collect the next 20 distinct posts
+after it, or the smaller requested batch.
+
+For the Chrome reader, set `AFTER_ID` to the quoted cursor ID in the script
+you pass to `javascript_tool`. Its first result is the anchor and does not
+count toward the batch. If it returns `continue_scan`, rerun in the same tab
+with the same ID and `FROM_CURRENT_POSITION = true` to keep scrolling. With
+the accessibility fallback, apply the same anchor rule yourself.
+
+Write a selection array with the observed anchor's URL as the first row,
+followed by the new rows. Run `vault sync /absolute/path/to/selection.json
+--older-than <cursor-id>`. Use `--text-first` if the user wants text first.
+The last saved bookmark becomes the next cursor. A fresh recent sync starts
+a new sequence. The local archive retains earlier batches.
+
+If you cannot find the anchor or Chrome stops loading, report where you
+stopped. If the anchor is found but no older posts are visible, keep the
+cursor. Only report the end of bookmarks when X shows the end.
 
 ## Capture a post and describe its images
 

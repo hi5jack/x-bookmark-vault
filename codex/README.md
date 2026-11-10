@@ -1,4 +1,4 @@
-# X Bookmark Vault — macOS beta 0.1.0-beta.2
+# X Bookmark Vault — macOS beta 0.1.0-beta.4
 
 Use recent X bookmarks to make a storyboard, a brief, or a reading plan on your Mac, with links to the original sources.
 
@@ -22,7 +22,7 @@ If the welcome page is unavailable, paste this prompt:
 
 > $x-bookmark-vault Sync my recent X bookmarks from the Chrome tab and show me what I can make from them. Start with the saved text. Offer three specific choices with sources. When I pick one, fill in any evidence it needs and save the result to my local vault.
 
-The starter saves up to 20 recent bookmarks. You can also ask to finish a full sync or search earlier saved posts. Available images, original X clips, and linked sources can be archived locally. Apple Speech may download a language asset on first use. YouTube captions, when available, link back to the original video at the cited time.
+The starter saves up to 20 recent bookmarks. Say **“Sync the next 20 older bookmarks”** to continue from the last post of the most recent batch. You can also ask to finish a full sync or search earlier saved posts. Available images, original X clips, and linked sources can be archived locally. Apple Speech may download a language asset on first use. YouTube captions, when available, link back to the original video at the cited time.
 
 ## Where data goes
 

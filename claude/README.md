@@ -1,4 +1,4 @@
-# X Bookmark Vault for Claude Code — macOS beta 0.1.0-beta.3
+# X Bookmark Vault for Claude Code — macOS beta 0.1.0-beta.4
 
 Use recent X bookmarks to make a storyboard, a brief, or a reading plan on your Mac, with links to the original sources.
 
@@ -39,7 +39,7 @@ If the welcome page is unavailable, paste this prompt:
 
 > Use the x-bookmark-vault skill to sync my recent X bookmarks from Chrome and show me what I can make from them. Start with the saved text. Offer three specific choices with sources. When I pick one, fill in any evidence it needs and save the result to my local vault.
 
-You can also invoke the skill directly with `/x-bookmark-vault` (ZIP install) or `/x-bookmark-vault:x-bookmark-vault` (plugin). The starter saves up to 20 recent bookmarks. You can also ask to finish a full sync or search earlier saved posts. Available images, original X clips, and linked sources can be archived locally. Apple Speech may download a language asset on first use. YouTube captions, when available, link back to the original video at the cited time.
+You can also invoke the skill directly with `/x-bookmark-vault` (ZIP install) or `/x-bookmark-vault:x-bookmark-vault` (plugin). The starter saves up to 20 recent bookmarks. Say **“Sync the next 20 older bookmarks”** to continue from the last post of the most recent batch. You can also ask to finish a full sync or search earlier saved posts. Available images, original X clips, and linked sources can be archived locally. Apple Speech may download a language asset on first use. YouTube captions, when available, link back to the original video at the cited time.
 
 ## Where data goes
 

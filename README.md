@@ -1,10 +1,10 @@
 # X Bookmark Vault
 
-Turn recent X bookmarks into a brief, storyboard, or reading plan. Browse the original sources and jump to cited video timestamps. Your archive and finished Markdown files live on your Mac.
+Turn recent X bookmarks into a brief, storyboard, or reading plan. Browse the original sources and jump to cited video timestamps. Sync up to 20 bookmarks at a time, then continue into older saves. Your archive and finished Markdown files live on your Mac.
 
 ## Install for Codex
 
-1. Download the macOS ZIP from the [v0.1.0-beta.2 pre-release](https://github.com/hi5jack/x-bookmark-vault/releases/tag/v0.1.0-beta.2).
+1. Download the macOS ZIP from the [v0.1.0-beta.4 pre-release](https://github.com/hi5jack/x-bookmark-vault/releases/tag/v0.1.0-beta.4).
 2. Extract it and open `Install.command`.
 3. Follow the welcome page to start with your X bookmarks in Codex.
 
@@ -24,6 +24,6 @@ claude plugin marketplace add hi5jack/x-bookmark-vault
 claude plugin install x-bookmark-vault@x-bookmark-vault
 ```
 
-Then start Claude Code with `claude --chrome` and send the starter prompt from the [Claude Code guide](claude/README.md). The guide also covers the ZIP installer from the [v0.1.0-beta.3 pre-release](https://github.com/hi5jack/x-bookmark-vault/releases/tag/v0.1.0-beta.3), which copies the skill into `~/.claude/skills`. The Claude Code edition requires macOS 26 or newer and [Claude in Chrome](https://code.claude.com/docs/en/chrome) with a signed-in X session. It uses the same local vault as the Codex edition.
+Then start Claude Code with `claude --chrome` and send the starter prompt from the [Claude Code guide](claude/README.md). The guide also covers the ZIP installer from the [v0.1.0-beta.4 pre-release](https://github.com/hi5jack/x-bookmark-vault/releases/tag/v0.1.0-beta.4), which copies the skill into `~/.claude/skills`. The Claude Code edition requires macOS 26 or newer and [Claude in Chrome](https://code.claude.com/docs/en/chrome) with a signed-in X session. It uses the same local vault as the Codex edition.
 
 The [Claude Code source](claude/) is a plugin with the [skill](claude/skills/x-bookmark-vault/). Its helper scripts are copies of the Codex scripts; `tools/check-shared-scripts.sh` verifies they match.

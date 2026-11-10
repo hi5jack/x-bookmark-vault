@@ -56,9 +56,9 @@ case "${1:-}" in
   youtube) script=youtube.py ;;
   images) script=images.py ;;
   transcribe) script=transcribe.py ;;
-  find|starter|save-answer|play-link) exec python3 -B "$skill_dir/library.py" "$@" ;;
+  find|cursor|starter|save-answer|play-link) exec python3 -B "$skill_dir/library.py" "$@" ;;
   *)
-    printf 'Usage: %s {doctor|sync|import|sources|youtube|images|find|starter|save-answer|play-link|transcribe}\n' "$0" >&2
+    printf 'Usage: %s {doctor|sync|import|sources|youtube|images|find|cursor|starter|save-answer|play-link|transcribe}\n' "$0" >&2
     exit 2
     ;;
 esac

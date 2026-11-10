@@ -1,6 +1,6 @@
 ---
 name: x-bookmark-vault
-description: Sync up to 20 X bookmarks or archive specific posts, quoted posts, images, and linked sources in a local vault. Suggest and save practical outputs from recent bookmarks, with original-source and timestamp citations.
+description: Sync recent or older X bookmarks in batches of up to 20 or archive specific posts, quoted posts, images, and linked sources in a local vault. Suggest and save practical outputs from recent bookmarks, with original-source and timestamp citations.
 ---
 
 # X Bookmark Vault
@@ -88,6 +88,24 @@ status, speaker mapping, known-speaker references, and fallback on audio runs.
 Schedule only when the user asks to configure recurring sync.
 After syncing, describe newly archived images using the steps below. Reuse
 descriptions that are already saved.
+
+## Continue with older bookmarks
+
+When asked to sync older bookmarks, run `scripts/vault cursor` to get the ID of
+the last bookmark from the most recent batch. Open the signed-in Bookmarks
+timeline and scroll until you see that exact post. Use bookmark order, even
+when the post dates appear out of order. Collect the next 20 distinct posts
+after it, or the smaller requested batch.
+
+Write a selection array with the observed anchor's URL as the first row,
+followed by the new rows. Run `scripts/vault sync /absolute/path/to/selection.json
+--older-than <cursor-id>`. Use `--text-first` if the user wants text first.
+The last saved bookmark becomes the next cursor. A fresh recent sync starts
+a new sequence. The local archive retains earlier batches.
+
+If you cannot find the anchor or Chrome stops loading, report where you
+stopped. If the anchor is found but no older posts are visible, keep the
+cursor. Only report the end of bookmarks when X shows the end.
 
 ## Capture a post and describe its images
 

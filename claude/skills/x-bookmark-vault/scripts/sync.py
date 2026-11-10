@@ -15,7 +15,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from images import archive_photos, ocr_images
-from library import PREVIEW_MARKER, media_path, post_body, post_id, posts, read_json
+from library import PREVIEW_MARKER, latest_capture, media_path, post_body, post_id, posts, read_json
 from transcribe import AppleSpeech, archive_transcript
 
 LIMIT = 20
@@ -286,6 +286,21 @@ def observed_selection(rows):
     return recent
 
 
+def continuation(rows, anchor):
+    current = latest_capture(VAULT)["posts"]
+    if not current or current[-1]["id"] != anchor:
+        raise ValueError("The bookmark cursor changed. Read the current cursor before retrying.")
+    if not isinstance(rows, list) or not rows or post_id(rows[0]["url"]) != anchor:
+        raise ValueError("Start the continuation with the cursor post observed on the Bookmarks page.")
+    page = rows[1:]
+    if page:
+        ids = observed_selection(page)
+        current_ids = {post["id"] for post in current}
+        if len(ids) != len(page) or current_ids.intersection(ids):
+            raise ValueError("The continuation must contain distinct posts after the cursor, in bookmark order.")
+    return page
+
+
 def import_batch(rows, manifest, preserve=False):
     manifest.write_text(json.dumps(rows, ensure_ascii=False), encoding="utf-8")
     subprocess.run([RUNNER, "import", manifest, *(["--keep-latest"] if preserve else [])], check=True)
@@ -408,14 +423,15 @@ def main():
     parser.add_argument("selection", type=Path, nargs="?")
     parser.add_argument("--post", action="append", help="Archive a public X post without replacing the latest bookmarks")
     parser.add_argument("--locale", default="en-US")
+    parser.add_argument("--older-than", metavar="POST_ID", help="Continue after the last bookmark of the previous batch")
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument("--text-first", action="store_true", help="Save visible bookmark text before media")
     modes.add_argument("--enrich-latest", action="store_true", help="Enrich the most recent capture without Chrome")
     args = parser.parse_args()
     if sum(bool(value) for value in (args.selection, args.post, args.enrich_latest)) != 1:
         parser.error("Provide a selection file, one or more --post URLs, or --enrich-latest")
-    if args.text_first and not args.selection:
-        parser.error("--text-first requires a selection file")
+    if (args.text_first or args.older_than) and not args.selection:
+        parser.error("--text-first and --older-than require a selection file")
     VAULT.mkdir(mode=0o700, parents=True, exist_ok=True)
     with (VAULT / ".sync.lock").open("a") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -423,9 +439,14 @@ def main():
             return sync(latest_rows(), args.locale, retry_older=False)
         if args.selection:
             rows = read_json(args.selection)
+            if args.older_than:
+                rows = continuation(rows, args.older_than)
+                if not rows:
+                    print("No older bookmarks captured. The cursor was retained.")
+                    return 0
             if args.text_first:
                 return sync_text(rows)
-            return sync(rows, args.locale)
+            return sync(rows, args.locale, retry_older=not args.older_than)
         rows = [{"url": urlsplit(url)._replace(query="", fragment="").geturl(),
                  "partial": True, "capture_role": "manual"} for url in args.post]
         return sync(rows, args.locale, keep_latest=True)

@@ -60,6 +60,14 @@ def latest_capture(vault):
     return read_json(path) if path.is_file() else {"posts": [], "captured_at": None}
 
 
+def bookmark_cursor(vault):
+    posts = latest_capture(vault)["posts"]
+    if not posts:
+        raise ValueError("Sync recent bookmarks first")
+    post = posts[-1]
+    return {"after_id": post["id"], "url": post.get("capture_url") or post["source_url"]}
+
+
 def latest_ids(vault):
     current = latest_capture(vault)["posts"]
     return {post["id"] for post in current} | {
@@ -229,6 +237,7 @@ def main():
     search.add_argument("query")
     search.add_argument("--limit", type=int, choices=range(1, 31), default=12, metavar="1–30")
     search.add_argument("--latest", action="store_true", help="Search the latest capture and its direct sources")
+    commands.add_parser("cursor", help="Find the last bookmark of the most recent batch")
     commands.add_parser("starter", help="Read evidence from the latest capture for first-run options")
     save = commands.add_parser("save-answer")
     save.add_argument("destination", type=Path)
@@ -239,6 +248,8 @@ def main():
     vault = Path(os.environ["X_BOOKMARK_VAULT"]).resolve()
     if args.command == "find":
         print(json.dumps(find(vault, args.query, args.limit, latest=args.latest), ensure_ascii=False, indent=2))
+    elif args.command == "cursor":
+        print(json.dumps(bookmark_cursor(vault), ensure_ascii=False))
     elif args.command == "starter":
         print(json.dumps(starter(vault), ensure_ascii=False, indent=2))
     elif args.command == "save-answer":

@@ -1,6 +1,6 @@
 {
   "name": "x-bookmark-vault",
-  "version": "0.1.0-beta.3",
+  "version": "0.1.0-beta.4",
   "description": "Turn recent X bookmarks into a cited brief, storyboard, or reading plan saved on your Mac. Reads your signed-in X Bookmarks through Claude in Chrome and archives posts, images, video transcripts, and linked sources in a local vault.",
   "author": {
     "name": "hi5jack",
