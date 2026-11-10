@@ -8,5 +8,6 @@
   },
   "homepage": "https://github.com/hi5jack/x-bookmark-vault",
   "repository": "https://github.com/hi5jack/x-bookmark-vault",
+  "license": "MIT",
   "keywords": ["x", "twitter", "bookmarks", "research", "macos", "transcription"]
 }
