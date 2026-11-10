@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Start with X Bookmark Vault</title>
+<style>
+  :root { color-scheme: light; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #172421; background: #eef3ef; }
+  body { margin: 0; padding: clamp(24px, 7vw, 80px) 18px; }
+  main { max-width: 600px; margin: 0 auto; padding: clamp(24px, 6vw, 48px); background: #fff; border: 1px solid #d9e3dc; border-radius: 20px; }
+  .brand { font-weight: 700; color: #245b49; }
+  h1 { font-size: clamp(30px, 6vw, 42px); letter-spacing: -.035em; line-height: 1.1; margin: 14px 0; }
+  p, li { line-height: 1.55; }
+  li + li { margin-top: 8px; }
+  a { color: #155b44; text-underline-offset: 3px; }
+  label { display: block; margin: 24px 0 8px; font-weight: 700; }
+  textarea { box-sizing: border-box; width: 100%; min-height: 142px; padding: 14px; resize: vertical; border: 1px solid #a8b8ae; border-radius: 10px; font: inherit; line-height: 1.45; color: inherit; background: #f6f8f6; }
+  button { margin: 14px 0 2px; padding: 12px 20px; border: 0; border-radius: 10px; font: inherit; font-weight: 700; color: #fff; background: #215842; cursor: pointer; }
+  button:hover { background: #174331; }
+  :focus-visible { outline: 3px solid #338165; outline-offset: 3px; }
+  #status { min-height: 1.55em; margin: 6px 0 0; color: #245b49; }
+  .detail { border-top: 1px solid #d9e3dc; margin-top: 20px; padding-top: 16px; color: #44544d; }
+</style>
+</head>
+<body>
+<main>
+  <div class="brand">X Bookmark Vault</div>
+  <h1>Make something from your bookmarks</h1>
+  <p>Start with your 20 most recent saves. Codex will suggest what you can make and save the one you choose to your Mac.</p>
+  <ol>
+    <li>Open <a href="https://x.com/i/bookmarks" target="_blank" rel="noopener noreferrer">X Bookmarks</a> in your signed-in Chrome profile.</li>
+    <li>Open or restart the Codex desktop app. Use its <strong>@</strong> menu to tag the Chrome bookmarks tab.</li>
+    <li>Copy the prompt, paste it into that chat, and send it.</li>
+  </ol>
+  <label for="prompt">Starter prompt</label>
+  <textarea id="prompt" readonly spellcheck="false">$x-bookmark-vault Sync my recent X bookmarks from the Chrome tab and show me what I can make from them. Start with the saved text. Offer three specific choices with sources. When I pick one, fill in any evidence it needs and save the result to my local vault.</textarea>
+  <button id="copy" type="button">Copy starter prompt</button>
+  <p id="status" role="status" aria-live="polite"></p>
+  <p class="detail">Pick a number after Codex shows your choices. Your finished Markdown file will be in the vault’s <strong>answers</strong> folder.</p>
+</main>
+<script>
+  const promptBox = document.getElementById("prompt");
+  const copyButton = document.getElementById("copy");
+  const status = document.getElementById("status");
+
+  copyButton.addEventListener("click", async () => {
+    let copied = false;
+    if (navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(promptBox.value);
+        copied = true;
+      } catch {
+        // Local files can have restricted clipboard access.
+      }
+    }
+    if (!copied) {
+      promptBox.focus();
+      promptBox.select();
+      try {
+        copied = document.execCommand("copy");
+      } catch {
+        // The selected text remains available for manual copying.
+      }
+    }
+    if (copied) {
+      status.textContent = "Copied. Paste it into the Codex chat with your bookmarks tab.";
+      copyButton.focus();
+    } else {
+      status.textContent = "Press Command+C to copy the selected prompt.";
+    }
+  });
+</script>
+</body>
+</html>
