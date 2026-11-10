@@ -1,0 +1,66 @@
+#!/bin/bash
+set -euo pipefail
+umask 077
+
+skill_dir="$(cd "$(dirname "$0")" && pwd)"
+support_dir="${X_BOOKMARK_SUPPORT_DIR:-$HOME/.local/share/x-bookmark-vault}"
+export X_BOOKMARK_VAULT="${X_BOOKMARK_VAULT:-$support_dir/vault}"
+export X_BOOKMARK_SPEECH_BIN="${X_BOOKMARK_SPEECH_BIN:-$support_dir/x-vault-speech}"
+export X_BOOKMARK_OCR_BIN="${X_BOOKMARK_OCR_BIN:-$support_dir/x-vault-ocr}"
+export PATH="$PATH:/opt/homebrew/bin:/usr/local/bin"
+
+if [[ "${1:-}" == doctor ]]; then
+  missing=0
+  printf 'Vault: %s\n' "$X_BOOKMARK_VAULT"
+  if [[ "$(uname -s)" != Darwin || "$(/usr/bin/sw_vers -productVersion | cut -d. -f1)" -lt 26 ]]; then
+    echo "Required for Apple Speech: macOS 26 or newer."
+    missing=1
+  fi
+  if /usr/bin/xcode-select -p >/dev/null 2>&1; then
+    sdk=$(/usr/bin/xcrun --sdk macosx --show-sdk-version 2>/dev/null || true)
+    if [[ "${sdk%%.*}" =~ ^[0-9]+$ && "${sdk%%.*}" -ge 26 ]]; then
+      echo "Apple developer tools: macOS SDK $sdk"
+    else
+      echo "Update the Apple Command Line Tools to get the macOS 26 SDK."
+      missing=1
+    fi
+  else
+    echo "Install Apple's developer tools in Terminal: xcode-select --install"
+    missing=1
+  fi
+  if command -v python3 >/dev/null && { [[ "$(command -v python3)" != /usr/bin/python3 ]] || /usr/bin/xcode-select -p >/dev/null 2>&1; } &&
+     python3 -c 'import sys; sys.exit(sys.version_info < (3, 9))'; then
+    echo "Python: $(python3 --version)"
+  else
+    echo "Required: Python 3.9 or newer (included with current Apple developer tools)."
+    missing=1
+  fi
+  if command -v ffmpeg >/dev/null && command -v ffprobe >/dev/null; then
+    echo "X video: FFmpeg and FFprobe available"
+  else
+    echo "For X video download and transcription, install FFmpeg: brew install ffmpeg"
+    missing=1
+  fi
+  if command -v yt-dlp >/dev/null; then
+    echo "YouTube captions: yt-dlp available"
+  else
+    echo "Optional for automatic YouTube caption capture: brew install yt-dlp"
+  fi
+  exit "$missing"
+fi
+
+case "${1:-}" in
+  sync) script=sync.py ;;
+  import) script=import_selection.py ;;
+  sources) script=sources.py ;;
+  youtube) script=youtube.py ;;
+  images) script=images.py ;;
+  transcribe) script=transcribe.py ;;
+  find|starter|save-answer|play-link) exec python3 -B "$skill_dir/library.py" "$@" ;;
+  *)
+    printf 'Usage: %s {doctor|sync|import|sources|youtube|images|find|starter|save-answer|play-link|transcribe}\n' "$0" >&2
+    exit 2
+    ;;
+esac
+shift
+exec python3 -B "$skill_dir/$script" "$@"

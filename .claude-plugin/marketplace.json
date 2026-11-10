@@ -1,0 +1,16 @@
+{
+  "name": "x-bookmark-vault",
+  "owner": {
+    "name": "hi5jack",
+    "url": "https://github.com/hi5jack"
+  },
+  "description": "X Bookmark Vault for Claude Code on macOS.",
+  "plugins": [
+    {
+      "name": "x-bookmark-vault",
+      "source": "./claude",
+      "description": "Turn recent X bookmarks into cited briefs, storyboards, and reading plans on your Mac.",
+      "category": "productivity"
+    }
+  ]
+}
